@@ -12,7 +12,6 @@
   --action-color: #738ef8;
   .sticky {
     position: sticky;
-    z-index: 10;
   }
   
 }
