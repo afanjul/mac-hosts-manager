@@ -48,6 +48,8 @@ jobs:
           body: |
             Automated release for ${{ github.ref_name }}.
             See CHANGELOG or commit history for details.
+          allowUpdates: true
+          replacesArtifacts: true
 
       - name: Upload all DMG release artifacts
         uses: softprops/action-gh-release@v2
