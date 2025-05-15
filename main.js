@@ -71,7 +71,7 @@ ipcMain.handle('save-hosts', async (_event, newContent) => {
     const tmp = '/tmp/hosts_tmp_' + Date.now();
     fs.writeFileSync(tmp, newContent, 'utf8');
     const { execSync } = require('child_process');
-    execSync(`osascript -e 'do shell script "cp ${tmp} ${HOSTS_PATH}" with administrator privileges'`);
+    execSync(`sudo osascript -e 'do shell script "cp ${tmp} ${HOSTS_PATH}" with administrator privileges'`);
     fs.unlinkSync(tmp);
     return { success: true };
   } catch (err) {
