@@ -154,7 +154,19 @@ body, html, #root {
   border-radius: 4px;
   margin-bottom:0;
   padding:2px 0 2px 9px;
-  transition: background .13s;
+}
+
+/* Drop target styling for dnd-kit */
+.drop-target {
+  min-height: 1px;
+  background: transparent;
+  transition: background 0.15s;
+}
+.drop-target.active,
+.drop-target:active,
+.drop-target:focus {
+  background: #eaf1fa;
+  border-radius: 4px;
 }
 input.monospace {
   width: 100%;
@@ -197,6 +209,9 @@ input.monospace {
 }
 .host-line button:hover { background: #ffeded; color: #c0392b; }
 .host-line-comment input { color: #aaa; }
+.host-line-comment .host-col-toggle {
+  display: none;
+}
 .add-line-btn {
   background: #fff;
   color: var(--accent-blue);
@@ -233,17 +248,23 @@ input.monospace {
 
 /* Subtle animation for pending-save state */
 @keyframes pendingSavePulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
+  0% { background: rgb(209, 57, 57); }
+  50% { background: #0566d2 }
+  100% { background: rgb(209, 57, 57); }
 }
 
 button.pending-save {
-  animation: pendingSavePulse 1.2s infinite ease-in-out;
-  transition: opacity 0.3s;
+  animation: pendingSavePulse 0.8s infinite ease-in-out;
   background: rgb(209, 57, 57);
   color: "#333";
-  border: 1px solid rgb(209, 57, 57);
   box-sizing: border-box;
 }
 
+footer {
+  padding: 10px 30px 10px 30px;
+  background: #efefef;
+}
+
+.app-title {
+  margin: 0;
+}

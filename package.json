@@ -4,32 +4,27 @@
   "main": "main.js",
   "scripts": {
     "start": "concurrently \"vite\" \"electron .\"",
-    "dev": "vite",
-    "dev:electron": "node dev.js",
     "build": "vite build",
     "build-electron": "node build.js",
-    "verify-build": "node scripts/verify-build.js",
-    "test-build": "node scripts/test-local-build.js",
-    "test-build:mac": "node scripts/test-local-build.js mac",
-    "test-build:win": "node scripts/test-local-build.js win",
-    "test-build:linux": "node scripts/test-local-build.js linux",
-    "debug-gh-release": "git tag debug-v$(date +'%Y%m%d%H%M%S') && git push origin --tags",
     "package": "vite build && electron-builder --publish=never",
-    "package:mac": "vite build && electron-builder --mac --publish=never",
+    "package:mac": "vite build && electron-builder --mac --arm64 --x64 --publish=never",
+    "package:mac:universal": "vite build && electron-builder --mac --universal --publish=never",
     "package:win": "vite build && electron-builder --win --publish=never",
     "package:linux": "vite build && electron-builder --linux --publish=never",
     "package:all": "vite build && electron-builder -mwl --publish=never",
     "release": "vite build && electron-builder --publish=onTagOrDraft",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:strict": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "package:universal": "vite build && electron-builder --mac --universal --publish=never"
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "lucide-react": "^0.487.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
@@ -38,11 +33,11 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^8.2.2",
     "electron": "^35.1.5",
     "electron-builder": "^26.0.12",
     "typescript": "^5.8.3",
-    "vite": "^6.2.6",
-    "concurrently": "^8.2.2"
+    "vite": "^6.2.6"
   },
   "build": {
     "appId": "com.pastemax.hostsmanager",
@@ -55,7 +50,7 @@
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
-      "icon": "",
+      "icon": "build/icon.png",
       "target": [
         "dmg"
       ]
