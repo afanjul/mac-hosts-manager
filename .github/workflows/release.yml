@@ -16,7 +16,9 @@ on:
   push:
     tags:
       - 'v*' # Triggers on tags like v1.2.3
-
+permissions:
+  contents: write
+  
 jobs:
   build_and_release:
     runs-on: macos-latest
