@@ -13,6 +13,12 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 800,
+    minHeight: 600,
+    titleBarStyle: 'hiddenInset',
+    vibrancy: 'under-window',
+    visualEffectState: 'active',
+    backgroundColor: '#f5f5f7',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -22,6 +28,12 @@ function createWindow() {
         htmlFullscreen: false,
       },
     },
+    show: false, // Don't show until ready-to-show
+  });
+  
+  // Show window when ready to avoid flickering
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show();
   });
 
   // Pass the safe mode flag to the renderer
