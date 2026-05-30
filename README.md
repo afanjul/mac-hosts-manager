@@ -4,6 +4,9 @@
 
 **mac-hosts-manager** is a modern macOS utility for managing your system's `/etc/hosts` file with a user-friendly interface. Built with React, Vite, and Electron, it streamlines editing, organizing, and applying host entries. The app is designed for macOS and includes potential integration with TouchID for secure, persistent sudo access.
 
+<img width="2366" height="2010" alt="Hosts Manager - Macos" src="https://github.com/user-attachments/assets/e3181f6c-803a-4be1-b0fb-4b8d467bd029" />
+
+
 ## Features
 
 - **Modern UI:** Fast, responsive interface built with React and Vite.
