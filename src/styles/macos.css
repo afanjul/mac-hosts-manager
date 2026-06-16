@@ -1,0 +1,682 @@
+/* macOS Styling for Hosts Manager */
+
+:root {
+  /* macOS-inspired color palette */
+  --macos-bg: #f5f5f7;
+  --macos-window-bg: #ffffff;
+  --macos-sidebar-bg: #f2f2f7;
+  --macos-accent: #0071e3;
+  --macos-accent-hover: #0077ed;
+  --macos-accent-active: #0068d0;
+  --macos-text: #1d1d1f;
+  --macos-text-secondary: #86868b;
+  --macos-border: #d2d2d7;
+  --macos-divider: #e5e5ea;
+  --macos-danger: #ff3b30;
+  --macos-danger-hover: #ff4f45;
+  --macos-success: #34c759;
+  --macos-warning: #ff9500;
+  --macos-disabled: #aeaeb2;
+  --macos-input-bg: #ffffff;
+  --macos-input-border: #d2d2d7;
+  --macos-input-focus-border: #0071e3;
+  --macos-header-height: 60px;
+  --macos-footer-height: 36px;
+  --macos-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  --macos-shadow-strong: 0 2px 10px rgba(0, 0, 0, 0.1);
+  --macos-radius: 10px;
+  --macos-radius-sm: 6px;
+  --macos-transition: all 0.2s ease;
+  
+  /* Dark mode colors - will be applied when .dark-mode class is present */
+  --macos-dark-bg: #1e1e1e;
+  --macos-dark-window-bg: #2d2d2d;
+  --macos-dark-sidebar-bg: #323232;
+  --macos-dark-text: #f5f5f7;
+  --macos-dark-text-secondary: #a1a1a6;
+  --macos-dark-border: #3d3d3d;
+  --macos-dark-divider: #3a3a3a;
+  --macos-dark-input-bg: #3a3a3a;
+  --macos-dark-input-border: #4d4d4d;
+}
+
+/* Base styles */
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--macos-bg);
+  color: var(--macos-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* App container */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--macos-bg);
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--macos-window-bg);
+  border-bottom: 1px solid var(--macos-border);
+  padding: 15px 24px;
+  height: var(--macos-header-height);
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  box-shadow: var(--macos-shadow);
+}
+
+.app-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--macos-text);
+}
+
+/* macOS-style buttons */
+.macos-button {
+  background: var(--macos-accent);
+  color: white;
+  border: none;
+  border-radius: var(--macos-radius-sm);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--macos-transition);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.macos-button:hover {
+  background: var(--macos-accent-hover);
+}
+
+.macos-button:active {
+  background: var(--macos-accent-active);
+  transform: scale(0.98);
+}
+
+.macos-button-secondary {
+  background: transparent;
+  color: var(--macos-accent);
+  border: 1px solid var(--macos-accent);
+}
+
+.macos-button-secondary:hover {
+  background: rgba(0, 113, 227, 0.05);
+}
+
+.macos-button-danger {
+  background: var(--macos-danger);
+}
+
+.macos-button-danger:hover {
+  background: var(--macos-danger-hover);
+}
+
+/* Content area */
+.content-area {
+  flex: 1;
+  padding: 24px;
+  background: var(--macos-window-bg);
+  margin: 16px 24px;
+  border-radius: var(--macos-radius);
+  box-shadow: var(--macos-shadow);
+}
+
+/* Hosts list */
+.hosts-list {
+  max-height: calc(100vh - var(--macos-header-height) - var(--macos-footer-height) - 80px);
+  overflow-y: auto;
+  position: relative;
+  border-radius: var(--macos-radius-sm);
+  background: var(--macos-window-bg);
+}
+
+/* Host header */
+.host-header-wrapper {
+  border-radius: var(--macos-radius-sm) var(--macos-radius-sm) 0 0;
+  background: var(--macos-sidebar-bg);
+  box-shadow: var(--macos-shadow);
+}
+
+.host-header-row {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--macos-text-secondary);
+  background: var(--macos-sidebar-bg);
+  border-bottom: 1px solid var(--macos-divider);
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.search-row {
+  background: var(--macos-sidebar-bg) !important;
+  padding: 8px 16px;
+}
+
+/* Host line */
+.host-line {
+  display: flex;
+  align-items: center;
+  background: var(--macos-window-bg);
+  border-radius: 0;
+  margin-bottom: 1px;
+  padding: 8px 16px;
+  transition: var(--macos-transition);
+  border-bottom: 1px solid var(--macos-divider);
+}
+
+.host-line:hover {
+  background: rgba(0, 113, 227, 0.05);
+}
+
+.host-line:last-child {
+  border-radius: 0 0 var(--macos-radius-sm) var(--macos-radius-sm);
+}
+
+/* Input fields */
+input.macos-input {
+  width: 100%;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+  border: 1px solid var(--macos-input-border);
+  border-radius: var(--macos-radius-sm);
+  font-size: 14px;
+  background: var(--macos-input-bg);
+  padding: 8px 12px;
+  color: var(--macos-text);
+  transition: var(--macos-transition);
+}
+
+input.macos-input:focus {
+  outline: none;
+  border-color: var(--macos-input-focus-border);
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+}
+
+/* Textarea for comments */
+.macos-textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--macos-input-border);
+  border-radius: var(--macos-radius-sm);
+  outline: none;
+  background: var(--macos-input-bg);
+  font-size: 14px;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+  color: var(--macos-text);
+  resize: vertical;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  transition: var(--macos-transition);
+}
+
+.macos-textarea:focus {
+  border-color: var(--macos-input-focus-border);
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+}
+
+/* Checkbox styling */
+.macos-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--macos-border);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  background: white;
+  transition: var(--macos-transition);
+}
+
+.macos-checkbox:checked {
+  background: var(--macos-accent);
+  border-color: var(--macos-accent);
+}
+
+.macos-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.macos-checkbox:focus {
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+}
+
+/* Action buttons */
+.action-button {
+  background: transparent;
+  color: var(--macos-text-secondary);
+  border: none;
+  border-radius: var(--macos-radius-sm);
+  padding: 6px;
+  cursor: pointer;
+  transition: var(--macos-transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--macos-text);
+}
+
+.action-button.danger {
+  color: var(--macos-danger);
+}
+
+.action-button.danger:hover {
+  background: rgba(255, 59, 48, 0.1);
+}
+
+/* Add actions row */
+.add-actions-row {
+  background-color: var(--macos-window-bg);
+  padding: 16px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--macos-divider);
+}
+
+/* Footer */
+.footer {
+  padding: 0 24px;
+  height: var(--macos-footer-height);
+  background: var(--macos-window-bg);
+  color: var(--macos-text-secondary);
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  border-top: 1px solid var(--macos-border);
+}
+
+/* Drag handle */
+.host-col-drag {
+  color: var(--macos-text-secondary);
+  opacity: 0.5;
+  transition: var(--macos-transition);
+}
+
+.host-line:hover .host-col-drag {
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes pendingSavePulse {
+  0% { background: var(--macos-accent); }
+  50% { background: var(--macos-warning); }
+  100% { background: var(--macos-accent); }
+}
+
+button.pending-save {
+  animation: pendingSavePulse 1.5s infinite ease-in-out;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  color: var(--macos-text-secondary);
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  color: var(--macos-text-secondary);
+  opacity: 0.5;
+}
+
+/* Tooltip */
+.macos-tooltip {
+  position: relative;
+}
+
+.macos-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.macos-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Status indicator */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--macos-text-secondary);
+}
+
+.status-indicator.success {
+  color: var(--macos-success);
+}
+
+.status-indicator.warning {
+  color: var(--macos-warning);
+}
+
+.status-indicator.error {
+  color: var(--macos-danger);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode styles */
+.dark-mode {
+  background-color: var(--macos-dark-bg);
+  color: var(--macos-dark-text);
+}
+
+.dark-mode .app-container {
+  background: var(--macos-dark-bg);
+}
+
+.dark-mode .header {
+  background: var(--macos-dark-window-bg);
+  border-bottom: 1px solid var(--macos-dark-border);
+}
+
+.dark-mode .app-title {
+  color: var(--macos-dark-text);
+}
+
+.dark-mode .content-area {
+  background: var(--macos-dark-window-bg);
+}
+
+.dark-mode .host-header-wrapper {
+  background: var(--macos-dark-sidebar-bg);
+}
+
+.dark-mode .host-header-row {
+  background: var(--macos-dark-sidebar-bg);
+  color: var(--macos-dark-text-secondary);
+  border-bottom: 1px solid var(--macos-dark-divider);
+}
+
+.dark-mode .search-row {
+  background: var(--macos-dark-sidebar-bg) !important;
+}
+
+.dark-mode .host-line {
+  background: var(--macos-dark-window-bg);
+  border-bottom: 1px solid var(--macos-dark-divider);
+}
+
+.dark-mode .host-line:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode input.macos-input,
+.dark-mode .macos-textarea {
+  background: var(--macos-dark-input-bg);
+  border-color: var(--macos-dark-input-border);
+  color: var(--macos-dark-text);
+}
+
+.dark-mode input.macos-input:focus,
+.dark-mode .macos-textarea:focus {
+  border-color: var(--macos-accent);
+}
+
+.dark-mode .macos-checkbox {
+  border-color: var(--macos-dark-border);
+  background: var(--macos-dark-input-bg);
+}
+
+.dark-mode .action-button {
+  color: var(--macos-dark-text-secondary);
+}
+
+.dark-mode .action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--macos-dark-text);
+}
+
+.dark-mode .footer {
+  background: var(--macos-dark-window-bg);
+  color: var(--macos-dark-text-secondary);
+  border-top: 1px solid var(--macos-dark-border);
+}
+
+.dark-mode .empty-state {
+  color: var(--macos-dark-text-secondary);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Keyboard shortcut hint */
+.keyboard-shortcut {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--macos-text-secondary);
+}
+
+.dark-mode .keyboard-shortcut {
+  color: var(--macos-dark-text-secondary);
+}
+
+.keyboard-shortcut span {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 0 2px;
+  font-family: "SF Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.dark-mode .keyboard-shortcut span {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Drag animation */
+.dragging {
+  opacity: 0.8;
+  transform: scale(1.02);
+  box-shadow: var(--macos-shadow-strong);
+  z-index: 1000;
+}
+
+/* Improved animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Help dialog */
+.help-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.help-dialog-content {
+  background: var(--macos-window-bg);
+  border-radius: var(--macos-radius);
+  box-shadow: var(--macos-shadow-strong);
+  width: 600px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.dark-mode .help-dialog-content {
+  background: var(--macos-dark-window-bg);
+}
+
+.help-dialog h2 {
+  margin-top: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.help-dialog h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.help-dialog-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--macos-text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.help-dialog-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .help-dialog-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Confirmation dialog */
+.confirm-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirm-dialog-content {
+  background: var(--macos-window-bg);
+  border-radius: var(--macos-radius);
+  box-shadow: var(--macos-shadow-strong);
+  width: 400px;
+  max-width: 90%;
+  padding: 24px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.dark-mode .confirm-dialog-content {
+  background: var(--macos-dark-window-bg);
+}
+
+.confirm-dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.confirm-dialog-message {
+  margin-bottom: 24px;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

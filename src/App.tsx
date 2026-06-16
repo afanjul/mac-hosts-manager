@@ -1,6 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import "./styles/index.css";
-import { Save, RefreshCw, Plus, Trash2, GripVertical } from "lucide-react";
+import "./styles/macos.css";
+import { 
+  Save, 
+  RefreshCw, 
+  Plus, 
+  Trash2, 
+  GripVertical, 
+  Info, 
+  AlertCircle, 
+  CheckCircle2, 
+  FileText, 
+  Search, 
+  X, 
+  Settings, 
+  HelpCircle,
+  Moon,
+  Sun,
+  Command,
+  Keyboard
+} from "lucide-react";
 
 // dnd-kit imports
 import {
@@ -111,34 +130,34 @@ function SortableItem({
     listeners,
     setNodeRef,
     transform,
-    // transition, // Remove transition from destructuring
     isDragging,
     isSorting,
   } = useSortable({
     id,
     disabled,
-    // Remove animateLayoutChanges for default behavior
   });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+    boxShadow: isDragging ? 'var(--macos-shadow-strong)' : 'none',
+    position: isDragging ? 'relative' : 'static',
   };
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={
-        `host-line`
-      }
+      className={`host-line ${isDragging ? 'dragging' : ''}`}
       {...props}
     >
       {/* Drag handle */}
       <div
-        className="host-col-drag"
+        className="host-col-drag macos-tooltip"
         style={{
           cursor: disabled ? "not-allowed" : "grab",
-          opacity: disabled ? 0.3 : 1,
+          opacity: disabled ? 0.3 : 0.6,
           display: "flex",
           alignItems: "center",
           padding: "0 6px",
@@ -147,7 +166,7 @@ function SortableItem({
         {...attributes}
         {...listeners}
         tabIndex={-1}
-        title={disabled ? "" : "Drag to reorder"}
+        data-tooltip={disabled ? "Sorting disabled" : "Drag to reorder"}
       >
         <GripVertical size={16} />
       </div>
@@ -164,6 +183,10 @@ function App() {
   const [searchIp, setSearchIp] = useState("");
   const [searchDomain, setSearchDomain] = useState("");
   const [searchComment, setSearchComment] = useState("");
+  // UI state
+  const [darkMode, setDarkMode] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState<{show: boolean, message: string, onConfirm: () => void} | null>(null);
   // Scroll to bottom when a new entry is added
   useEffect(() => {
     if (parsedLines.length > 0) {
@@ -239,8 +262,13 @@ function App() {
   }
 
   function deleteLine(idx: number) {
-    setParsedLines((prev) => prev.filter((_, i) => i !== idx));
-    setStatus("Modified");
+    confirmAction(
+      "Are you sure you want to delete this entry?",
+      () => {
+        setParsedLines((prev) => prev.filter((_, i) => i !== idx));
+        setStatus("Modified");
+      }
+    );
   }
 
   function isComment(line: HostLine) {
@@ -328,19 +356,142 @@ function App() {
         })()
       : null;
 
+  // Status indicator component
+  const StatusIndicator = ({ status }: { status: string }) => {
+    if (status === "Loading..." || status === "Saving...") {
+      return (
+        <div className="status-indicator">
+          <RefreshCw size={14} className="animate-spin" />
+          <span>{status}</span>
+        </div>
+      );
+    } else if (status === "Loaded" || status === "Saved") {
+      return (
+        <div className="status-indicator success">
+          <CheckCircle2 size={14} />
+          <span>{status}</span>
+        </div>
+      );
+    } else if (status === "Modified") {
+      return (
+        <div className="status-indicator warning">
+          <AlertCircle size={14} />
+          <span>Unsaved Changes</span>
+        </div>
+      );
+    } else if (status.startsWith("Error")) {
+      return (
+        <div className="status-indicator error">
+          <AlertCircle size={14} />
+          <span>{status}</span>
+        </div>
+      );
+    }
+    return (
+      <div className="status-indicator">
+        <Info size={14} />
+        <span>{status}</span>
+      </div>
+    );
+  };
+
+  // Toggle dark mode
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => !prev);
+  }, []);
+
+  // Show help dialog
+  const openHelp = useCallback(() => {
+    setShowHelp(true);
+  }, []);
+
+  // Close help dialog
+  const closeHelp = useCallback(() => {
+    setShowHelp(false);
+  }, []);
+
+  // Confirm dialog
+  const confirmAction = useCallback((message: string, onConfirm: () => void) => {
+    setShowConfirmDialog({ show: true, message, onConfirm });
+  }, []);
+
+  // Close confirm dialog
+  const closeConfirmDialog = useCallback(() => {
+    setShowConfirmDialog(null);
+  }, []);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Command+S or Ctrl+S to save
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        saveHosts();
+      }
+      // Command+R or Ctrl+R to reload
+      if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+        e.preventDefault();
+        loadHosts();
+      }
+      // Command+D or Ctrl+D to toggle dark mode
+      if ((e.metaKey || e.ctrlKey) && e.key === 'd') {
+        e.preventDefault();
+        toggleDarkMode();
+      }
+      // Command+N or Ctrl+N to add new entry
+      if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+        e.preventDefault();
+        addLine();
+      }
+      // Command+/ or Ctrl+/ to show help
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        openHelp();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [saveHosts, loadHosts, toggleDarkMode, addLine, openHelp]);
+
   return (
-    <div className="app-container">
+    <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
       <header className="header">
-        <h1 className="app-title">macOS Hosts Manager</h1>
-        <div>
-          <button onClick={loadHosts}>
+        <div className="app-title-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <FileText size={20} />
+          <h1 className="app-title">Hosts Manager</h1>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <StatusIndicator status={status} />
+          <button 
+            className="macos-button macos-button-secondary" 
+            onClick={loadHosts}
+            title="Reload hosts file (⌘R)"
+          >
             <RefreshCw size={16} /> Reload
           </button>
           <button
             onClick={saveHosts}
-            className={status === "Modified" ? "pending-save" : ""}
+            className={`macos-button ${status === "Modified" ? "pending-save" : ""}`}
+            title="Save changes (⌘S)"
           >
-            <Save size={16} /> {status === "Modified" ? "Save *" : "Save"}
+            <Save size={16} /> {status === "Modified" ? "Save Changes" : "Save"}
+          </button>
+          <button
+            onClick={toggleDarkMode}
+            className="macos-button macos-button-icon"
+            title="Toggle dark mode (⌘D)"
+          >
+            {darkMode ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <button
+            onClick={openHelp}
+            className="macos-button macos-button-icon"
+            title="Help (⌘/)"
+          >
+            <HelpCircle size={16} />
           </button>
         </div>
       </header>
@@ -352,54 +503,119 @@ function App() {
             <div className="host-header-row">
               <div className="host-col-drag"></div>
               <div className="host-col-toggle"></div>
-              <div className="host-col-ip">IP</div>
+              <div className="host-col-ip">IP Address</div>
               <div className="host-col-domain">Domain</div>
               <div className="host-col-comment">Comment</div>
               <div className="host-col-actions"></div>
             </div>
             {/* Search row */}
-            <div className="host-header-row search-row" style={{ background: "#f8f8f8" }}>
+            <div className="host-header-row search-row">
               <div className="host-col-drag"></div>
               <div className="host-col-toggle"></div>
               <div className="host-col-ip">
-                <input
-                  className="monospace"
-                  type="text"
-                  value={searchIp}
-                  onChange={e => setSearchIp(e.target.value)}
-                  placeholder="Search IP"
-                  style={{ width: "100%" }}
-                  spellCheck={false}
-                />
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--macos-text-secondary)' }} />
+                  <input
+                    className="macos-input"
+                    type="text"
+                    value={searchIp}
+                    onChange={e => setSearchIp(e.target.value)}
+                    placeholder="Filter by IP"
+                    style={{ width: '100%', paddingLeft: '32px' }}
+                    spellCheck={false}
+                  />
+                  {searchIp && (
+                    <button 
+                      onClick={() => setSearchIp('')}
+                      style={{ 
+                        position: 'absolute', 
+                        right: '8px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '50%'
+                      }}
+                    >
+                      <X size={14} style={{ color: 'var(--macos-text-secondary)' }} />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="host-col-domain">
-                <input
-                  className="monospace"
-                  type="text"
-                  value={searchDomain}
-                  onChange={e => setSearchDomain(e.target.value)}
-                  placeholder="Search Domain"
-                  style={{ width: "100%" }}
-                  spellCheck={false}
-                />
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--macos-text-secondary)' }} />
+                  <input
+                    className="macos-input"
+                    type="text"
+                    value={searchDomain}
+                    onChange={e => setSearchDomain(e.target.value)}
+                    placeholder="Filter by domain"
+                    style={{ width: '100%', paddingLeft: '32px' }}
+                    spellCheck={false}
+                  />
+                  {searchDomain && (
+                    <button 
+                      onClick={() => setSearchDomain('')}
+                      style={{ 
+                        position: 'absolute', 
+                        right: '8px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '50%'
+                      }}
+                    >
+                      <X size={14} style={{ color: 'var(--macos-text-secondary)' }} />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="host-col-comment">
-                <input
-                  className="monospace"
-                  type="text"
-                  value={searchComment}
-                  onChange={e => setSearchComment(e.target.value)}
-                  placeholder="Search Comment"
-                  style={{ width: "100%" }}
-                  spellCheck={false}
-                />
+                <div style={{ position: 'relative' }}>
+                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--macos-text-secondary)' }} />
+                  <input
+                    className="macos-input"
+                    type="text"
+                    value={searchComment}
+                    onChange={e => setSearchComment(e.target.value)}
+                    placeholder="Filter by comment"
+                    style={{ width: '100%', paddingLeft: '32px' }}
+                    spellCheck={false}
+                  />
+                  {searchComment && (
+                    <button 
+                      onClick={() => setSearchComment('')}
+                      style={{ 
+                        position: 'absolute', 
+                        right: '8px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        borderRadius: '50%'
+                      }}
+                    >
+                      <X size={14} style={{ color: 'var(--macos-text-secondary)' }} />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="host-col-actions"></div>
             </div>
           </div>
           {parsedLines.length === 0 && (
-            <div style={{ opacity: 0.4, fontStyle: "italic", padding: 12 }}>
-              (hosts file is empty)
+            <div className="empty-state">
+              <FileText size={48} />
+              <h3>No Entries Found</h3>
+              <p>Your hosts file is empty. Add an entry to get started.</p>
             </div>
           )}
           {/* Filtered rows with drag-and-drop */}
@@ -433,6 +649,7 @@ function App() {
                         <div className="host-col-toggle">
                           <input
                             type="checkbox"
+                            className="macos-checkbox"
                             checked={line.enabled}
                             onChange={e => {
                               const newLines = [...parsedLines];
@@ -446,7 +663,7 @@ function App() {
                         {/* IP */}
                         <div className="host-col-ip">
                           <input
-                            className="monospace"
+                            className="macos-input"
                             value={line.ip}
                             onChange={e => {
                               const newLines = [...parsedLines];
@@ -455,13 +672,13 @@ function App() {
                               setStatus("Modified");
                             }}
                             spellCheck={false}
-                            placeholder="IP"
+                            placeholder="Enter IP address"
                           />
                         </div>
                         {/* Domain */}
                         <div className="host-col-domain">
                           <input
-                            className="monospace"
+                            className="macos-input"
                             value={line.domain}
                             onChange={e => {
                               const newLines = [...parsedLines];
@@ -470,13 +687,13 @@ function App() {
                               setStatus("Modified");
                             }}
                             spellCheck={false}
-                            placeholder="Domain"
+                            placeholder="Enter domain name"
                           />
                         </div>
                         {/* Comment */}
                         <div className="host-col-comment">
                           <input
-                            className="monospace"
+                            className="macos-input"
                             value={line.comment ?? ""}
                             onChange={e => {
                               const newLines = [...parsedLines];
@@ -485,7 +702,7 @@ function App() {
                               setStatus("Modified");
                             }}
                             spellCheck={false}
-                            placeholder="Comment"
+                            placeholder="Optional comment"
                           />
                         </div>
                         {/* Actions */}
@@ -495,10 +712,11 @@ function App() {
                               setParsedLines(parsedLines.filter((_, i) => i !== originalIdx));
                               setStatus("Modified");
                             }}
-                            title="Delete"
+                            className="action-button danger macos-tooltip"
+                            data-tooltip="Delete entry"
                             tabIndex={-1}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </>
@@ -509,7 +727,7 @@ function App() {
                         {/* Comment textarea */}
                         <div className="host-col-ip host-col-domain host-col-comment" style={{ flex: 1 }}>
                           <textarea
-                            className="monospace comment-textarea"
+                            className="macos-textarea"
                             value={line.text}
                             rows={Math.max(1, line.text.split('\n').length)}
                             onChange={e => {
@@ -519,7 +737,7 @@ function App() {
                               setStatus("Modified");
                             }}
                             spellCheck={false}
-                            placeholder="# Comment"
+                            placeholder="# Add your comment here"
                           />
                         </div>
                         {/* Actions */}
@@ -529,10 +747,11 @@ function App() {
                               setParsedLines(parsedLines.filter((_, i) => i !== originalIdx));
                               setStatus("Modified");
                             }}
-                            title="Delete"
+                            className="action-button danger macos-tooltip"
+                            data-tooltip="Delete comment"
                             tabIndex={-1}
                           >
-                            <Trash2 size={14} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </>
@@ -552,8 +771,14 @@ function App() {
                   { type: "entry", ip: "", domain: "", comment: "", enabled: true }
                 ]);
                 setStatus("Modified");
+                // Scroll to the bottom after adding a new entry
+                setTimeout(() => {
+                  if (hostsListRef.current) {
+                    hostsListRef.current.scrollTop = hostsListRef.current.scrollHeight;
+                  }
+                }, 100);
               }}
-              className="add-line-btn"
+              className="macos-button"
             >
               <Plus size={16} /> Add Entry
             </button>
@@ -564,17 +789,133 @@ function App() {
                   { type: "comment", text: "# " }
                 ]);
                 setStatus("Modified");
+                // Scroll to the bottom after adding a new comment
+                setTimeout(() => {
+                  if (hostsListRef.current) {
+                    hostsListRef.current.scrollTop = hostsListRef.current.scrollHeight;
+                  }
+                }, 100);
               }}
-              className="add-line-btn"
+              className="macos-button macos-button-secondary"
             >
               <Plus size={16} /> Add Comment
             </button>
+            
+            {/* Help button */}
+            <div style={{ marginLeft: 'auto' }}>
+              <button 
+                className="action-button macos-tooltip" 
+                data-tooltip="Help & Information"
+                onClick={() => {
+                  alert("Hosts Manager Help\n\n• Drag entries to reorder them\n• Toggle checkbox to enable/disable entries\n• Use the search filters to find specific entries\n• Changes are not saved until you click 'Save'");
+                }}
+              >
+                <HelpCircle size={16} />
+              </button>
+            </div>
           </div>
         </div>
+        
+        {/* Add an info section */}
+        {parsedLines.length > 0 && (
+          <div style={{ 
+            marginTop: '16px', 
+            padding: '12px 16px', 
+            background: 'rgba(0, 113, 227, 0.05)', 
+            borderRadius: 'var(--macos-radius-sm)', 
+            fontSize: '13px',
+            color: 'var(--macos-text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Info size={16} />
+            <div>
+              <strong>Tip:</strong> Changes to your hosts file require administrator privileges and will only take effect after saving.
+            </div>
+          </div>
+        )}
       </main>
       <footer className="footer">
-        <span>{status}</span>
+        <div className="status-indicator">
+          <FileText size={14} />
+          <span>Hosts file: /etc/hosts</span>
+        </div>
+        <div style={{ marginLeft: 'auto' }}>
+          <StatusIndicator status={status} />
+        </div>
       </footer>
+
+      {/* Help Dialog */}
+      {showHelp && (
+        <div className="help-dialog">
+          <div className="help-dialog-content">
+            <button className="help-dialog-close" onClick={closeHelp}>
+              <X size={16} />
+            </button>
+            <h2>Hosts Manager Help</h2>
+            <p>
+              Hosts Manager is a simple tool to manage your system's hosts file. 
+              It allows you to easily add, edit, and remove host entries.
+            </p>
+            
+            <h3>Keyboard Shortcuts</h3>
+            <ul>
+              <li><div className="keyboard-shortcut"><Command size={14} /><span>S</span></div> Save changes</li>
+              <li><div className="keyboard-shortcut"><Command size={14} /><span>R</span></div> Reload hosts file</li>
+              <li><div className="keyboard-shortcut"><Command size={14} /><span>D</span></div> Toggle dark mode</li>
+              <li><div className="keyboard-shortcut"><Command size={14} /><span>N</span></div> Add new entry</li>
+              <li><div className="keyboard-shortcut"><Command size={14} /><span>/</span></div> Show this help</li>
+            </ul>
+            
+            <h3>Features</h3>
+            <ul>
+              <li>Drag and drop to reorder entries</li>
+              <li>Enable/disable entries with the checkbox</li>
+              <li>Filter entries by IP, domain, or comment</li>
+              <li>Add comments to document your hosts file</li>
+              <li>Dark mode support</li>
+            </ul>
+            
+            <h3>About</h3>
+            <p>
+              Hosts Manager for macOS is an open-source tool designed to make editing your hosts file easier.
+              Changes to your hosts file require administrator privileges and will only take effect after saving.
+            </p>
+            
+            <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="macos-button" onClick={closeHelp}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="confirm-dialog">
+          <div className="confirm-dialog-content">
+            <h3 className="confirm-dialog-title">Confirm Action</h3>
+            <p className="confirm-dialog-message">{showConfirmDialog.message}</p>
+            <div className="confirm-dialog-actions">
+              <button 
+                className="macos-button macos-button-secondary" 
+                onClick={closeConfirmDialog}
+              >
+                Cancel
+              </button>
+              <button 
+                className="macos-button" 
+                onClick={() => {
+                  showConfirmDialog.onConfirm();
+                  closeConfirmDialog();
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
